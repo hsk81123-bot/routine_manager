@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#f8f7f3" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <title>결 | 나의 루틴</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <section id="today" class="page active" aria-label="오늘">
+        <header class="topbar">
+          <div>
+            <p class="eyebrow" id="date-label"></p>
+            <h1>좋은 아침이에요<span class="dot">.</span></h1>
+          </div>
+          <button class="icon-button" id="open-settings" aria-label="설정">⚙</button>
+        </header>
+
+        <section class="focus-card">
+          <p class="eyebrow">TODAY'S FOCUS</p>
+          <h2 id="focus-title">나를 위한 한 걸음</h2>
+          <p id="focus-copy">오늘 가장 중요한 일을 정해보세요.</p>
+          <div class="progress-row">
+            <div class="progress-track"><span id="today-progress"></span></div>
+            <strong id="today-percent">0%</strong>
+          </div>
+        </section>
+
+        <section class="section-heading">
+          <div><p class="eyebrow">TODAY</p><h2>오늘의 할 일</h2></div>
+          <button class="text-button" data-action="add-task">+ 추가</button>
+        </section>
+        <div id="task-list" class="task-list"></div>
+        <button class="add-card" data-action="add-task"><span>+</span> 할 일 추가하기</button>
+
+        <section class="mini-journal" id="journal-prompt">
+          <div><span class="journal-icon">✦</span><p class="eyebrow">ONE LINE JOURNAL</p></div>
+          <h3>오늘을 한 문장으로<br />기록해볼까요?</h3>
+          <button class="filled-button" data-tab="journal">일기 쓰기</button>
+        </section>
+      </section>
+
+      <section id="goals" class="page" aria-label="목표">
+        <header class="topbar compact">
+          <div><p class="eyebrow">MY DIRECTION</p><h1>목표</h1></div>
+          <button class="round-add" data-action="add-goal" aria-label="목표 추가">+</button>
+        </header>
+        <div class="period-tabs" role="tablist">
+          <button class="selected" data-period="daily">일간</button><button data-period="weekly">주간</button><button data-period="monthly">월간</button><button data-period="yearly">연간</button>
+        </div>
+        <div id="goal-summary" class="goal-summary"></div>
+        <div id="goal-list" class="goal-list"></div>
+        <button class="add-card" data-action="add-goal"><span>+</span> 새로운 목표 만들기</button>
+      </section>
+
+      <section id="journal" class="page" aria-label="일기">
+        <header class="topbar compact"><div><p class="eyebrow">MY RECORD</p><h1>일기</h1></div></header>
+        <section class="journal-card">
+          <div class="journal-date"><span id="journal-date"></span><span>오늘의 기록</span></div>
+          <label for="mood-select">지금 기분은 어떤가요?</label>
+          <div id="mood-picker" class="mood-picker" role="group" aria-label="기분 선택"></div>
+          <label for="journal-text">오늘의 한 줄</label>
+          <textarea id="journal-text" placeholder="떠오르는 생각을 자유롭게 적어보세요."></textarea>
+          <button id="save-journal" class="filled-button full">오늘 기록 저장하기</button>
+        </section>
+        <section class="section-heading journal-history-heading"><div><p class="eyebrow">RECENT</p><h2>최근 기록</h2></div></section>
+        <div id="journal-history" class="journal-history"></div>
+      </section>
+
+      <section id="review" class="page" aria-label="회고">
+        <header class="topbar compact"><div><p class="eyebrow">LOOKING BACK</p><h1>이번 주 회고</h1></div></header>
+        <section class="review-score-card">
+          <p>이번 주 루틴 달성률</p><strong id="review-score">0%</strong>
+          <div class="progress-track"><span id="review-progress"></span></div>
+          <p id="review-caption" class="muted">작은 시작이 쌓여 변화를 만들어요.</p>
+        </section>
+        <form id="review-form" class="review-form">
+          <label>이번 주 잘한 점<textarea name="win" placeholder="나 자신을 칭찬해 주세요."></textarea></label>
+          <label>다음 주에 다르게 해볼 점<textarea name="next" placeholder="조금 더 가볍게, 구체적으로 적어보세요."></textarea></label>
+          <label>나에게 남기는 말<textarea name="note" placeholder="수고한 나에게 한마디."></textarea></label>
+          <button class="filled-button full" type="submit">회고 저장하기</button>
+        </form>
+      </section>
+
+      <nav class="bottom-nav" aria-label="주 메뉴">
+        <button class="nav-item active" data-tab="today"><span>☼</span>오늘</button>
+        <button class="nav-item" data-tab="goals"><span>◎</span>목표</button>
+        <button class="nav-item" data-tab="journal"><span>✎</span>일기</button>
+        <button class="nav-item" data-tab="review"><span>◔</span>회고</button>
+      </nav>
+    </main>
+
+    <dialog id="entry-dialog">
+      <form method="dialog" id="entry-form">
+        <div class="dialog-head"><h2 id="dialog-title">할 일 추가</h2><button value="cancel" class="icon-button" aria-label="닫기">×</button></div>
+        <div id="task-fields">
+          <label>할 일<input name="taskTitle" maxlength="60" placeholder="예: 저녁에 30분 달리기" required /></label>
+          <label>분류<select name="taskCategory"><option>운동</option><option>음악</option><option>연구</option><option>개인</option></select></label>
+        </div>
+        <div id="goal-fields" hidden>
+          <label>목표<input name="goalTitle" maxlength="60" placeholder="예: 주 3회 운동하기" /></label>
+          <label>분류<select name="goalCategory"><option>운동</option><option>음악</option><option>연구</option><option>개인</option></select></label>
+          <label>목표 기간<select name="goalPeriod"><option value="daily">일간</option><option value="weekly">주간</option><option value="monthly">월간</option><option value="yearly">연간</option></select></label>
+          <label>목표 횟수<input name="goalTarget" type="number" min="1" max="365" value="3" /></label>
+        </div>
+        <button id="dialog-submit" value="default" class="filled-button full">추가하기</button>
+      </form>
+    </dialog>
+    <dialog id="settings-dialog"><form method="dialog"><div class="dialog-head"><h2>설정</h2><button class="icon-button" aria-label="닫기">×</button></div><p class="muted">데이터는 이 기기의 브라우저에 저장됩니다.</p><button id="reset-data" type="button" class="danger-button">샘플 데이터 초기화</button></form></dialog>
+    <script src="app.js"></script>
+  </body>
+</html>
