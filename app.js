@@ -1,3 +1,29 @@
+// Firebase 초기화
+// Import the functions you need from the SDKs you need
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-analytics.js";
+import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/12.18.0/firebase-firestore.js";
+// TODO: Add SDKs for Firebase products that you want to use
+// https://firebase.google.com/docs/web/setup#available-libraries
+
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
+const firebaseConfig = {
+  apiKey: "AIzaSyB4kd-FeYavh9p0CcguHPnlxYBvjkBDN4o",
+  authDomain: "test-3ba78.firebaseapp.com",
+  projectId: "test-3ba78",
+  storageBucket: "test-3ba78.firebasestorage.app",
+  messagingSenderId: "944061930942",
+  appId: "1:944061930942:web:20cdcfab1bf8fbfa6cadef",
+  measurementId: "G-MSXJKY3VX8"
+};
+
+// Initialize Firebase
+const firebaseApp = initializeApp(firebaseConfig);
+const analytics = getAnalytics(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+
 const $ = (s) => document.querySelector(s);
 const defaultData = {
   tasks: [
@@ -14,7 +40,13 @@ const defaultData = {
 let data = JSON.parse(localStorage.getItem('gyeol-routine-data')) || defaultData;
 let activePeriod = 'daily'; let entryType = 'task';
 const moods = ['😄','🙂','😐','😔','😫'];
-const save = () => localStorage.setItem('gyeol-routine-data', JSON.stringify(data));
+const DOC_REF = doc(db, 'routines', 'my-data');
+const save = () => {
+  localStorage.setItem('gyeol-routine-data', JSON.stringify(data));  // 기존: 즉시 로컬 저장
+  setDoc(DOC_REF, data)                                              // 추가: 클라우드 저장
+    .then(() => console.log('☁️ Firestore 저장 성공'))
+    .catch((err) => console.error('☁️ Firestore 저장 실패:', err));
+};
 const koDate = new Intl.DateTimeFormat('ko-KR', { month:'long', day:'numeric', weekday:'long' }).format(new Date());
 
 function renderToday() {
@@ -50,5 +82,13 @@ document.addEventListener('click', (e) => {
 $('#entry-form').addEventListener('submit',(e)=>{e.preventDefault();const form=new FormData(e.currentTarget); if(entryType==='task'){const title=form.get('taskTitle').trim();if(!title)return;data.tasks.push({id:Date.now(),title,category:form.get('taskCategory'),done:false});}else {const title=form.get('goalTitle').trim();if(!title)return;data.goals.push({id:Date.now(),title,category:form.get('goalCategory'),period:form.get('goalPeriod'),target:Number(form.get('goalTarget')),current:0});activePeriod=form.get('goalPeriod');document.querySelectorAll('[data-period]').forEach(b=>b.classList.toggle('selected',b.dataset.period===activePeriod));}save();e.currentTarget.reset();$('#entry-dialog').close();renderToday();renderGoals();renderReview();});
 $('#save-journal').addEventListener('click',()=>{const text=$('#journal-text').value.trim();if(!text)return;data.journal.unshift({date:koDate,text,mood:data.mood});save();renderJournal();$('#save-journal').textContent='저장됐어요 ✓';setTimeout(()=>$('#save-journal').textContent='오늘 기록 저장하기',1300);});
 $('#review-form').addEventListener('submit',(e)=>{e.preventDefault();data.review=Object.fromEntries(new FormData(e.currentTarget));save();const b=e.submitter;b.textContent='저장됐어요 ✓';setTimeout(()=>b.textContent='회고 저장하기',1300);});
-$('#reset-data').addEventListener('click',()=>{localStorage.removeItem('gyeol-routine-data');data=structuredClone(defaultData);$('#settings-dialog').close();renderAll();});
+$('#reset-data').addEventListener('click',()=>{localStorage.removeItem('gyeol-routine-data');data=structuredClone(defaultData);save();$('#settings-dialog').close();renderAll();});
 renderAll();
+// 시작 시 Firestore에서 데이터 불러오기
+getDoc(DOC_REF).then((snapshot) => {
+  if (snapshot.exists()) {        // 클라우드에 저장된 데이터가 있으면
+    data = snapshot.data();       // 그걸로 교체하고
+    renderAll();                  // 화면을 다시 그린다
+    console.log('☁️ Firestore에서 불러옴');
+  }
+}).catch((err) => console.error('☁️ 불러오기 실패:', err));
